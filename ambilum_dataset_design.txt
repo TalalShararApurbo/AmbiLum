@@ -1,0 +1,89 @@
+AMBILUM DATASET DESIGN (FINAL VERSION)
+
+This dataset records environmental conditions, system decisions, and
+user behavior in the Ambilum smart lighting system. It is designed to
+support both automation logging and future behavioral analysis research.
+
+  -----------------------
+  1. CORE SYSTEM FIELDS
+  -----------------------
+
+timestamp Exact date and time of the recorded event.
+
+lux Ambient light level measured by the BH1750 sensor.
+
+hour_of_day Hour extracted from the timestamp (0–23).
+
+day_of_week Day of the week (Monday–Sunday).
+
+auto_rgb_profile RGB profile automatically selected by the system.
+
+auto_rgb_brightness RGB brightness automatically selected by the system
+(0–100).
+
+auto_monitor_brightness Monitor brightness automatically selected by the
+system (0–100).
+
+auto_profile_colors Colors defined inside the automatically selected RGB
+profile. Stored as a list of HEX values.
+
+user_override Boolean value indicating whether the user manually changed
+system settings.
+
+user_rgb_profile RGB profile manually selected by the user.
+
+user_rgb_brightness RGB brightness manually selected by the user.
+
+user_monitor_brightness Monitor brightness manually selected by the
+user.
+
+user_chosen_colors Actual colors chosen manually by the user across
+devices. Stored as a list of HEX color values.
+
+override_delay_seconds Time between the automatic system decision and
+the user override action.
+
+  ------------------------------
+  2. ADDITIONAL CONTEXT FIELDS
+  ------------------------------
+
+application_type Category of the active application at the time of the
+event. Examples: coding gaming browsing video other
+
+system_mode Current operating mode of the system. Possible values: auto
+manual scene
+
+scene_name Name of the active scene if scene mode is active. Examples:
+study_mode gaming_mode night_mode movie_mode
+
+  ----------------------------------
+  3. RESEARCH STYLE CONTEXT FIELDS
+  ----------------------------------
+
+device_id Identifier for the IoT sensor node. Example: desk_node_1
+
+session_id Unique identifier for a continuous PC usage session.
+
+environment_state General lighting condition derived from lux values.
+Possible values: dark dim bright
+
+decision_source Indicates how the lighting decision was made. Possible
+values: rule_engine user_override
+
+lux_change_rate Rate of change in ambient light level compared to
+previous reading.
+
+profile_change_reason Reason the RGB profile changed. Possible values:
+lux time application user
+
+  ------------------------
+  4. EXAMPLE DATA RECORD
+  ------------------------
+
+timestamp,lux,hour_of_day,day_of_week,auto_rgb_profile,auto_rgb_brightness,auto_monitor_brightness,auto_profile_colors,user_override,user_rgb_profile,user_rgb_brightness,user_monitor_brightness,user_chosen_colors,override_delay_seconds,application_type,system_mode,scene_name,device_id,session_id,environment_state,decision_source,lux_change_rate,profile_change_reason
+
+2026-03-06
+21:15:00,18,21,Friday,warm_night,30,25,“[#FF8A3D,#FFB56B,#FFD2A6]”,false,null,null,null,null,null,coding,auto,null,desk_node_1,session_84,dim,rule_engine,-2,lux
+
+2026-03-06
+21:20:00,17,21,Friday,warm_night,30,25,“[#FF8A3D,#FFB56B,#FFD2A6]”,true,cozy_red,40,35,“[#FF3B3B,#B30000,#660000]”,15,gaming,manual,gaming_mode,desk_node_1,session_84,dim,user_override,-1,user
