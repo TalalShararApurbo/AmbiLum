@@ -1,0 +1,44 @@
+PROJECT: AMBILUM - FINAL SPECIFICATION
+
+SUMMARY
+Ambilum is a centralized PC-based ambient automation system that adjusts RGB lighting and monitor brightness based on environmental light, time, and user behavior. It serves as a logic engine bridging IoT hardware with a desktop ecosystem.
+
+CORE ARCHITECTURE
+- Inputs: Ambient light (BH1750 via ESP8266/ESP32), Time, Active Application, Manual UI.
+- Processing: Python "PC Bridge" app (Backend Logic).
+- Outputs: OpenRGB (PC Components), WLED (WiFi Strips), Twinkle Tray (Monitor DDC/CI).
+- Communication: MQTT (Sensors), HTTP API (WLED), SDK Port 6742 (OpenRGB).
+
+TECHNICAL STACK & FRAMEWORKS
+- Language: Python (Modern rule-based engine).
+- IoT: ESP8266/ESP32 microcontroller.
+- Communication: Mosquitto MQTT Broker (Local).
+- Monitoring: DDC/CI via Twinkle Tray CLI.
+
+KEY LOGIC & FEATURES
+1. Dynamic Brightness: Automatic Lux-to-brightness mapping for all devices.
+2. App-Aware Profiling: Automatic switching (e.g., Gaming vs. Work/IDE).
+3. Circadian Modes: Time-based presets (Morning/Day/Evening/Night).
+4. Smart Overrides: Manual user input pauses automation to prevent conflicts.
+
+DATASET & ML FOUNDATION (RESEARCH COMPONENT)
+- Core Fields: Timestamp, Lux, App Type, System Decisions, User Overrides.
+- Research Fields: lux_change_rate, environment_state (dark/dim/bright).
+- ML Potential:
+    - Supervised Learning: Comparison of "Rule Engine" vs. "User Overrides" for labeled data.
+    - Regression Models: Predicting ideal brightness levels based on environmental telemetry.
+    - Classification: Automated scene switching based on historical behavior.
+
+IMPACT ON DAILY LIFE
+1. Prevents Eye Fatigue: Matches monitor brightness to room lux levels.
+2. Seamless Focus: Instantly switches profiles based on active tasks (IDE/Gaming).
+3. Circadian Support: Automatic shifts to warmer lighting for night-time health.
+4. Hands-Free Control: Removes the need for manual adjustment across disparate apps.
+5. Personalized Learning: Uses overrides to adapt the environment to specific habits.
+6. Unified Atmosphere: Synchronizes PC, monitor, and room LEDs into one cohesive system.
+
+PROJECT SCOPE CONSTRAINTS
+- NO mobile app (Desktop-first efficiency).
+- NO DIY physical knobs (Prioritizing logic automation).
+- YES dataset logging (Mandatory for research/ML).
+- YES hybrid UI (Custom dashboard + embedded WLED webview).

@@ -1,0 +1,14 @@
+{
+    "scenes": {
+        "Idle": "Soft White",
+        "Gaming": "Purple",
+        "Daytime": "Light Blue"
+    },
+    "devices": {
+        "wled": {
+            "scene": "Idle",
+            "preset": "Presets..."
+        }
+    },
+    "wled_state": true
+}
