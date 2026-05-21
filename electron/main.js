@@ -54,6 +54,9 @@ function writeJSON(filePath, data) {
 }
 
 let mainWindow;
+let aedesBroker = null;
+let brokerServer = null;
+let mqttClient = null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -80,18 +83,18 @@ app.whenReady().then(async () => {
   createWindow();
 
   // --- Embedded MQTT Broker ---
-  const aedes = await Aedes.createBroker();
-  const brokerServer = net.createServer(aedes.handle);
+  aedesBroker = await Aedes.createBroker();
+  brokerServer = net.createServer(aedesBroker.handle);
   
-  aedes.on('client', (client) => {
+  aedesBroker.on('client', (client) => {
     console.log(`[AEDES] Client Connected: ${client.id}`);
   });
 
-  aedes.on('clientDisconnect', (client) => {
+  aedesBroker.on('clientDisconnect', (client) => {
     console.log(`[AEDES] Client Disconnected: ${client.id}`);
   });
 
-  aedes.on('clientError', (client, err) => {
+  aedesBroker.on('clientError', (client, err) => {
     console.error(`[AEDES] Client Error (${client.id}):`, err.message);
   });
 
@@ -113,7 +116,7 @@ app.whenReady().then(async () => {
 
   // --- Internal MQTT Client ---
   function startMqttClient() {
-    const mqttClient = mqtt.connect(MQTT_BROKER);
+    mqttClient = mqtt.connect(MQTT_BROKER);
     
     mqttClient.on('connect', () => {
       console.log('Internal Client Connected to MQTT Broker!');
@@ -135,6 +138,14 @@ app.whenReady().then(async () => {
       createWindow();
     }
   });
+});
+
+// --- Graceful Shutdown ---
+app.on('before-quit', () => {
+  console.log('[SHUTDOWN] Cleaning up MQTT broker and client...');
+  if (mqttClient) mqttClient.end(true);
+  if (aedesBroker) aedesBroker.close();
+  if (brokerServer) brokerServer.close();
 });
 
 app.on('window-all-closed', () => {
