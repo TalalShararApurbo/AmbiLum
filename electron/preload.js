@@ -7,6 +7,10 @@ contextBridge.exposeInMainWorld('api', {
     setColor: (hexColor) => ipcRenderer.invoke('wled:setColor', hexColor),
     ping: () => ipcRenderer.invoke('wled:ping')
   },
+  twinkle: {
+    setBrightness: (brightness) => ipcRenderer.invoke('twinkle:setBrightness', brightness),
+    ping: () => ipcRenderer.invoke('twinkle:ping')
+  },
   data: {
     read: (type) => ipcRenderer.invoke('data:read', type),
     write: (type, data) => ipcRenderer.invoke('data:write', type, data)

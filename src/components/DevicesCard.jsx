@@ -12,6 +12,8 @@ function DeviceRow({ devId, name, state, toggleState, presets, scenes, assignDev
   const commitBrightness = (val) => {
     if (devId === 'wled' && window.api) {
       window.api.wled.setBrightness(val);
+    } else if (devId === 'twinkle' && window.api) {
+      window.api.twinkle.setBrightness(val);
     }
   };
 

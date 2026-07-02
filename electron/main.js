@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import { exec } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -65,7 +66,6 @@ function createWindow() {
   // In development, load from Vite dev server. In production, load the built HTML.
   if (!app.isPackaged) {
     mainWindow.loadURL('http://localhost:5173');
-    mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
   }
@@ -113,6 +113,35 @@ ipcMain.handle('wled:ping', async () => {
   } catch (error) {
     return 0;
   }
+});
+
+// --- Twinkle Tray DDC/CI Monitor Control ---
+const TWINKLE_PATH = path.join(process.env.LOCALAPPDATA || 'C:\\Users\\Default\\AppData\\Local', 'Programs', 'twinkle-tray', 'Twinkle Tray.exe');
+
+ipcMain.handle('twinkle:setBrightness', async (event, brightness) => {
+  const percent = Math.max(0, Math.min(100, Math.round((parseInt(brightness) / 255) * 100)));
+  const cmd = `"${TWINKLE_PATH}" --overlay=false --All --set=${percent}`;
+  return new Promise((resolve) => {
+    exec(cmd, (error) => {
+      if (error) {
+        exec(`tt --All --set=${percent}`, (err2) => {
+          resolve(!err2);
+        });
+      } else {
+        resolve(true);
+      }
+    });
+  });
+});
+
+ipcMain.handle('twinkle:ping', async () => {
+  return new Promise((resolve) => {
+    if (fs.existsSync(TWINKLE_PATH)) {
+      resolve(true);
+    } else {
+      exec('where tt', (err) => resolve(!err));
+    }
+  });
 });
 
 ipcMain.handle('data:read', (event, type) => {

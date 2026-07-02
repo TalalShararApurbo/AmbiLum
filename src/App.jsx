@@ -215,6 +215,18 @@ function App() {
     }
   };
 
+  const pingTwinkle = async () => {
+    addLog(`Checking Twinkle Tray status...`);
+    if (window.api && window.api.twinkle) {
+      const isAvailable = await window.api.twinkle.ping();
+      if (isAvailable) {
+        addLog(`✅ Twinkle Tray DDC/CI Service: Active`);
+      } else {
+        addLog(`❌ Twinkle Tray executable not detected on system.`);
+      }
+    }
+  };
+
   const pingWled = async () => {
     addLog(`Pinging WLED...`);
     if (window.api) {
@@ -317,6 +329,7 @@ function App() {
               cancelWheelListener={cancelWheelListener}
             />
             <QuickActionsCard 
+              pingTwinkle={pingTwinkle}
               pingWled={pingWled} 
               pingSensor={pingSensor} 
             />
