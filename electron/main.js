@@ -1,18 +1,13 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import mqtt from 'mqtt';
 import fs from 'fs';
-import { Aedes } from 'aedes';
-import net from 'net';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Constants
 const WLED_IP = '192.168.0.185';
-const MQTT_BROKER = 'mqtt://127.0.0.1:1883';
-const MQTT_TOPIC_LUX = 'ambilum/sensor/lux';
 
 const PRESETS_FILE = path.join(app.getPath('userData'), 'presets.json');
 const SCENES_FILE = path.join(app.getPath('userData'), 'scenes.json');
@@ -54,9 +49,6 @@ function writeJSON(filePath, data) {
 }
 
 let mainWindow;
-let aedesBroker = null;
-let brokerServer = null;
-let mqttClient = null;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -82,70 +74,11 @@ function createWindow() {
 app.whenReady().then(async () => {
   createWindow();
 
-  // --- Embedded MQTT Broker ---
-  aedesBroker = await Aedes.createBroker();
-  brokerServer = net.createServer(aedesBroker.handle);
-  
-  aedesBroker.on('client', (client) => {
-    console.log(`[AEDES] Client Connected: ${client.id}`);
-  });
-
-  aedesBroker.on('clientDisconnect', (client) => {
-    console.log(`[AEDES] Client Disconnected: ${client.id}`);
-  });
-
-  aedesBroker.on('clientError', (client, err) => {
-    console.error(`[AEDES] Client Error (${client.id}):`, err.message);
-  });
-
-  brokerServer.listen(1883, '0.0.0.0', () => {
-    console.log('Embedded Aedes MQTT Broker listening on 0.0.0.0:1883');
-    startMqttClient();
-  });
-
-  brokerServer.on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-      console.warn('⚠️ Port 1883 is already in use by another program (likely Mosquitto).');
-      console.warn('⚠️ The internal AmbiLum broker could not start.');
-      console.warn('⚠️ Falling back to connecting to the external broker instead.');
-      startMqttClient();
-    } else {
-      console.error('Aedes Broker Error:', err);
-    }
-  });
-
-  // --- Internal MQTT Client ---
-  function startMqttClient() {
-    mqttClient = mqtt.connect(MQTT_BROKER);
-    
-    mqttClient.on('connect', () => {
-      console.log('Internal Client Connected to MQTT Broker!');
-      mqttClient.subscribe(MQTT_TOPIC_LUX);
-    });
-
-    mqttClient.on('message', (topic, message) => {
-      if (topic === MQTT_TOPIC_LUX) {
-        const luxValue = parseFloat(message.toString());
-        if (!isNaN(luxValue) && mainWindow) {
-          mainWindow.webContents.send('lux-update', luxValue);
-        }
-      }
-    });
-  }
-
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
     }
   });
-});
-
-// --- Graceful Shutdown ---
-app.on('before-quit', () => {
-  console.log('[SHUTDOWN] Cleaning up MQTT broker and client...');
-  if (mqttClient) mqttClient.end(true);
-  if (aedesBroker) aedesBroker.close();
-  if (brokerServer) brokerServer.close();
 });
 
 app.on('window-all-closed', () => {

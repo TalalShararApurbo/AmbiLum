@@ -70,11 +70,13 @@ function App() {
         setIsLoaded(true);
       });
 
-      const unsubscribe = window.api.onLuxUpdate((luxVal) => {
-        setLux(luxVal);
-        setLastSensorUpdate(Date.now());
-      });
-      return unsubscribe;
+      if (window.api.onLuxUpdate) {
+        const unsubscribe = window.api.onLuxUpdate((luxVal) => {
+          setLux(luxVal);
+          setLastSensorUpdate(Date.now());
+        });
+        return unsubscribe;
+      }
     } else {
       setIsLoaded(true);
     }
