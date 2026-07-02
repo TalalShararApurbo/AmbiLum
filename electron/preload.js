@@ -14,5 +14,10 @@ contextBridge.exposeInMainWorld('api', {
   data: {
     read: (type) => ipcRenderer.invoke('data:read', type),
     write: (type, data) => ipcRenderer.invoke('data:write', type, data)
+  },
+  onLuxUpdate: (callback) => {
+    const subscription = (event, luxValue) => callback(luxValue);
+    ipcRenderer.on('lux-update', subscription);
+    return () => ipcRenderer.removeListener('lux-update', subscription);
   }
 });
